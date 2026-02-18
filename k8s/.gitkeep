@@ -1,0 +1,53 @@
+### --- General --- ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+### --- Python & Django --- ###
+__pycache__/
+*.py[cod]
+*$py.class
+app/venv/
+venv/
+ENV/
+env/
+.env
+.python-version
+# Django static and media should stay out of Git in production
+app/statuspage/media/*
+!app/statuspage/media/.gitignore
+app/statuspage/static/*
+!app/statuspage/static/.gitignore
+
+### --- Terraform (Crucial!) --- ###
+# Local build folder
+.terraform/
+# State files - contains SENSITIVE database passwords and secrets in plain text
+*.tfstate
+*.tfstate.backup
+# Variables files (where you might put secrets locally)
+*.tfvars
+*.tfvars.json
+# Lock file
+.terraform.lock.hcl
+# Crash logs
+crash.log
+
+### --- Kubernetes & Helm --- ###
+.kube/
+config
+# Helm charts locally rendered
+chart-*.tgz
+
+### --- Docker --- ###
+.docker-build/
+
+### --- IDEs --- ###
+.vscode/
+.idea/
+*.swp
+*.swo
