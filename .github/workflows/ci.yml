@@ -4,13 +4,9 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
-  REQUIREMENTS_FILE: 'app/requirements.txt'
+  # מכיוון שאנחנו מגדירים למטה שרצים בתוך תיקיית app, הנתיב כאן הוא יחסי אליה
+  REQUIREMENTS_FILE: 'requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
-  
-  # הערה: כאן אנחנו מגדירים את המשתנים עבור הסיסמאות.
-  # במקום לכתוב את הסיסמה כאן, אנחנו שואבים אותה בצורה מאובטחת
-  # מתוך הגדרות ה-Repository ב-GitHub (תחת Settings -> Secrets).
-  # כשתהיה לכם סיסמה, פשוט תוסיפו אותה לשם והקובץ הזה ישתמש בה אוטומטית.
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -18,9 +14,18 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
+    # כאן הקסם קורה: הגדרה שכל פקודות ה-run ב-Job הזה ירוצו בתוך תיקיית app
+    defaults:
+      run:
+        working-directory: ./app
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          # אנחנו צריכים שה-checkout יביא את כל ה-Repo (כולל תיקיית ה-root)
+          # אבל הפקודות הבאות ירוצו בתוך app בזכות ה-defaults למעלה
+          path: '.' 
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
@@ -33,5 +38,4 @@ jobs:
           pip install -r ${{ env.REQUIREMENTS_FILE }}
 
       - name: Run System Checks
-        # בשלב הזה הפקודה תוכל לרוץ מבלי לקרוס, כי היא תכיר את משתני הסביבה (env) של הסיסמאות שהגדרנו למעלה
         run: ${{ env.CHECK_COMMAND }}
