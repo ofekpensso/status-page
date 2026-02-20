@@ -4,10 +4,8 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
-  # הנתיב לקובץ ה-Requirements יחסי ל-working-directory שנגדיר למטה
   REQUIREMENTS_FILE: '../requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
-  # המשתנים האלו יישאבו מה-Secrets של GitHub (כשנגדיר אותם)
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -17,19 +15,16 @@ jobs:
     
     defaults:
       run:
-        # כל הפקודות ירוצו בתוך התיקייה שבה נמצא manage.py
         working-directory: ./app/statuspage
 
     steps:
-      - name: Checkout Repository 
+      - name: Checkout Repository 📂
         uses: actions/checkout@v4
 
       - name: Prepare Configuration File 📄
-        # כאן אנחנו פותרים את בעיית הקובץ החסר
         run: |
-          # 1. מעתיקים את תבנית הדוגמה לקובץ שהאפליקציה מחפשת
           cp statuspage/configuration_example.py statuspage/configuration.py
-          # 2. מחליפים את ה-SECRET_KEY הריק במפתח זמני לבדיקה
+          # הזרקת מפתח זמני וגם הגדרת שרת Redis מקומי לבדיקה
           sed -i "s/SECRET_KEY = ''/SECRET_KEY = 'ci-testing-key-123'/" statuspage/configuration.py
 
       - name: Set up Python ${{ env.PYTHON_VERSION }} 🐍
@@ -40,7 +35,10 @@ jobs:
       - name: Install Dependencies 🛠️
         run: |
           python -m pip install --upgrade pip
-          pip install -r ${{ env.REQUIREMENTS_FILE }}
+          # שימוש ב-python -m מבטיח שההתקנה תהיה בסביבה הנכונה
+          python -m pip install -r ${{ env.REQUIREMENTS_FILE }}
+          # פקודה זו תדפיס לנו ביומן הריצה בדיוק מה הותקן
+          python -m pip list
 
       - name: Run System Checks ✅
         run: ${{ env.CHECK_COMMAND }}
