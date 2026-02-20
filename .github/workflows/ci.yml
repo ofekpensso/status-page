@@ -4,9 +4,12 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
-  # מכיוון שאנחנו כבר בתוך התיקייה הנכונה, אנחנו צריכים רק את שם הקובץ
-  REQUIREMENTS_FILE: 'requirements.txt' 
-  CHECK_COMMAND: 'python manage.py check'
+  # נתיבים מלאים מהשורש של ה-Repository
+  REQUIREMENTS_PATH: 'app/requirements.txt'
+  MANAGE_PY_PATH: 'app/statuspage/manage.py'
+  # פקודת הבדיקה משתמשת בנתיב המלא לקובץ ה-manage.py
+  CHECK_COMMAND: 'python app/statuspage/manage.py check'
+  
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -14,26 +17,19 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        # כאן אנחנו מגדירים ל-Runner איפה "לנחות"
-        working-directory: ./app/statuspage
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository 📂
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }} 🐍
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install Dependencies
-        # הפקודה הזו תרוץ עכשיו בתוך ./app/statuspage ותמצא את requirements.txt
+      - name: Install Dependencies 🛠️
         run: |
           python -m pip install --upgrade pip
-          pip install -r ${{ env.REQUIREMENTS_FILE }}
+          pip install -r ${{ env.REQUIREMENTS_PATH }}
 
-      - name: Run System Checks
-        # הפקודה הזו תרוץ עכשיו בתוך ./app/statuspage ותמצא את manage.py
+      - name: Run System Checks ✅
         run: ${{ env.CHECK_COMMAND }}
