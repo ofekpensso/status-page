@@ -5,7 +5,7 @@ on: [push]
 env:
   PYTHON_VERSION: '3.10'
   # הנתיב כאן הוא יחסי לתיקיית העבודה (working-directory) שנגדיר למטה
-  REQUIREMENTS_FILE: 'requirements.txt' 
+  REQUIREMENTS_FILE: 'app/requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
   # המשתנים הללו יימשכו מה-Secrets של GitHub ברגע שתגדיר אותם שם
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
