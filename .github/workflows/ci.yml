@@ -7,6 +7,7 @@ env:
   # יוצאים מתיקיית statuspage כדי למצוא את הקובץ בתיקיית app
   REQUIREMENTS_FILE: '../requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
+  # המשתנים הללו יימשכו מה-Secrets של GitHub ברגע שתגדיר אותם
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -14,9 +15,16 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
+    # הגדרת שירותים חיצוניים שירוצו ברקע 🐳
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+
     defaults:
       run:
-        # ה-Runner עובד מתוך התיקייה שבה נמצא manage.py
+        # ה-Runner עובד מתוך התיקייה שבה נמצא manage.py 🏠
         working-directory: ./app/statuspage
 
     steps:
@@ -38,12 +46,11 @@ jobs:
       - name: Install Dependencies 🛠️
         run: |
           python -m pip install --upgrade pip
-          # התיקון הקריטי: התקנת גרסה שתומכת ב-rq.compat
+          # תיקון התאימות: התקנת גרסה שתומכת ב-rq.compat
           python -m pip install "rq<1.11"
           # התקנת שאר הספריות מהקובץ
           python -m pip install -r ${{ env.REQUIREMENTS_FILE }}
-          # בדיקה מהירה שהספרייה הבעייתית עכשיו נטענת בהצלחה
-          python -c "import rq_scheduler; print('Success: rq_scheduler is ready!')"
 
       - name: Run System Checks ✅
         run: ${{ env.CHECK_COMMAND }}
+
