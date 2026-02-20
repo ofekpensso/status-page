@@ -4,6 +4,7 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
+  # יוצאים מתיקיית statuspage כדי למצוא את הקובץ בתיקיית app
   REQUIREMENTS_FILE: '../requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -15,6 +16,7 @@ jobs:
     
     defaults:
       run:
+        # ה-Runner עובד מתוך התיקייה שבה נמצא manage.py
         working-directory: ./app/statuspage
 
     steps:
@@ -23,8 +25,9 @@ jobs:
 
       - name: Prepare Configuration File 📄
         run: |
+          # העתקת קובץ הדוגמה לקובץ הגדרות פעיל
           cp statuspage/configuration_example.py statuspage/configuration.py
-          # הזרקת מפתח זמני וגם הגדרת שרת Redis מקומי לבדיקה
+          # הזרקת מפתח סודי זמני לצורך הבדיקה
           sed -i "s/SECRET_KEY = ''/SECRET_KEY = 'ci-testing-key-123'/" statuspage/configuration.py
 
       - name: Set up Python ${{ env.PYTHON_VERSION }} 🐍
@@ -35,9 +38,12 @@ jobs:
       - name: Install Dependencies 🛠️
         run: |
           python -m pip install --upgrade pip
+          # התיקון הקריטי: התקנת גרסה שתומכת ב-rq.compat
+          python -m pip install "rq<1.11"
+          # התקנת שאר הספריות מהקובץ
           python -m pip install -r ${{ env.REQUIREMENTS_FILE }}
-          # בדיקה אם הספרייה באמת מותקנת וזמינה לייבוא
-          python -c "import rq_scheduler; print('RQ Scheduler is installed!')"
+          # בדיקה מהירה שהספרייה הבעייתית עכשיו נטענת בהצלחה
+          python -c "import rq_scheduler; print('Success: rq_scheduler is ready!')"
 
       - name: Run System Checks ✅
         run: ${{ env.CHECK_COMMAND }}
