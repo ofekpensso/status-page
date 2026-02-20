@@ -4,9 +4,10 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
-  # מכיוון שאנחנו מגדירים למטה שרצים בתוך תיקיית app, הנתיב כאן הוא יחסי אליה
+  # הנתיב כאן הוא יחסי לתיקיית העבודה (working-directory) שנגדיר למטה
   REQUIREMENTS_FILE: 'requirements.txt' 
   CHECK_COMMAND: 'python manage.py check'
+  # המשתנים הללו יימשכו מה-Secrets של GitHub ברגע שתגדיר אותם שם
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
 
@@ -14,18 +15,14 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
-    # כאן הקסם קורה: הגדרה שכל פקודות ה-run ב-Job הזה ירוצו בתוך תיקיית app
+    # הגדרת תיקיית העבודה המדויקת לפי המבנה ב-Repo שלך
     defaults:
       run:
-        working-directory: ./app
+        working-directory: ./app/statuspage
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          # אנחנו צריכים שה-checkout יביא את כל ה-Repo (כולל תיקיית ה-root)
-          # אבל הפקודות הבאות ירוצו בתוך app בזכות ה-defaults למעלה
-          path: '.' 
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
