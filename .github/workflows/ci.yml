@@ -4,7 +4,7 @@ on: [push]
 
 env:
   PYTHON_VERSION: '3.10'
-  REQUIREMENTS_FILE: 'requirements.txt'
+  REQUIREMENTS_FILE: 'app/requirements.txt'
   CHECK_COMMAND: 'python manage.py check'
   
   # הערה: כאן אנחנו מגדירים את המשתנים עבור הסיסמאות.
