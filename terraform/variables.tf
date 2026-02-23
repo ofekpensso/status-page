@@ -16,7 +16,7 @@ variable "vpc_cidr" {
 variable "project_name" {
   description = "Name of the project"
   type        = string
-  default     = "status-page"
+  default     = "ofek-status-page"
 }
 
 # Database credentials (No default value - security best practice!)
