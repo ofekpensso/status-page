@@ -1,0 +1,31 @@
+# Default configuration values for the Status Page application.
+# These values will be injected into our Kubernetes templates.
+
+# Number of pod replicas we want running for high availability
+replicaCount: 2
+
+# Docker image details from Amazon ECR
+image:
+  repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
+  pullPolicy: Always
+  tag: "latest" # The specific version your friend uploaded
+
+# PostgreSQL Database (RDS) configuration
+database:
+  host: "ofek-status-page-rds.cx248m4we6k7.us-east-1.rds.amazonaws.com"
+  port: "5432"
+  name: "statuspagedb"
+
+# Redis Cache (ElastiCache) configuration
+redis:
+  host: "ofek-status-page-redis.7fftml.0001.use1.cache.amazonaws.com"
+  port: "6379"
+
+# S3 Bucket configuration for static assets
+s3:
+  bucketName: "ofek-status-page-assets-bucket-8849"
+  region: "us-east-1"
+
+# Internal service port for the application
+service:
+  port: 8001
