@@ -89,6 +89,12 @@ resource "aws_eks_node_group" "main" {
   capacity_type  = "ON_DEMAND"
   instance_types = ["t3.medium"]
 
+  # Use the Launch Template to enforce the Name tag on the underlying EC2 instances
+  launch_template {
+    name    = aws_launch_template.eks_nodes.name
+    version = aws_launch_template.eks_nodes.latest_version
+  }
+
   scaling_config {
     desired_size = 2
     max_size     = 3
@@ -104,4 +110,17 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.eks_container_registry
   ]
+}
+
+# --- Launch Template for Worker Nodes (Sets the EC2 Name tag) ---
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix = "${var.project_name}-nodes-template-"
+
+  # Specify tags specifically for the EC2 instances created
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${var.project_name}-worker-node"
+    }
+  }
 }
