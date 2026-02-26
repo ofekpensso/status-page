@@ -1,0 +1,23 @@
+# Define the Ingress resource to expose our application to the internet
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  annotations:
+    # Tell AWS to make this Load Balancer public (internet-facing)
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # Route traffic directly to the pod IPs (modern and recommended for EKS)
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  # This is the magic word that was missing! It tells the AWS controller to process this Ingress.
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-service
+                port:
+                  number: 80

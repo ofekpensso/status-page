@@ -51,3 +51,7 @@ chart-*.tgz
 .idea/
 *.swp
 *.swo
+
+# Ignore Helm temporary files
+charts/*.tgz
+.helm/
