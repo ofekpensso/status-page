@@ -2,7 +2,7 @@
 # These values will be injected into our Kubernetes templates.
 
 # Number of pod replicas we want running for high availability
-replicaCount: 2
+replicaCount: 3
 
 # Docker image details from Amazon ECR
 image:
@@ -30,3 +30,34 @@ s3:
 # Internal service port for the application
 service:
   port: 8001
+
+  # Defining CPU and Memory requests/limits is required for HPA to function
+resources:
+  requests:
+    cpu: "250m"
+    memory: "768Mi"
+  limits:
+    cpu: "500m"
+    memory: "1536Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+probes:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 3
+ingress:
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: "ofek-status-page-alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"

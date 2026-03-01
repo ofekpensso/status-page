@@ -40,3 +40,25 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}-secret
                   key: SECRET_KEY      
+
+            # Injecting resources dynamically from values.yaml using the toYaml function
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          
+          # Liveness Probe reading values from the probes section in values.yaml
+          livenessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+
+          # Readiness Probe reading values from the probes section in values.yaml
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}      
