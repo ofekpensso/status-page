@@ -8,7 +8,7 @@ replicaCount: 2
 image:
   repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
   pullPolicy: Always
-  tag: "latest" # The specific version your friend uploaded
+  tag: "v1.0.0" # The specific version your friend uploaded
 
 # PostgreSQL Database (RDS) configuration
 database:

@@ -4,6 +4,7 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}-ingress
   annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: ofek-status-page-alb
     # Tell AWS to make this Load Balancer public (internet-facing)
     alb.ingress.kubernetes.io/scheme: internet-facing
     # Route traffic directly to the pod IPs (modern and recommended for EKS)

@@ -34,6 +34,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY app/ .
 
+RUN SECRET_KEY=dummy-key-for-build python statuspage/manage.py collectstatic --noinput
+
 RUN chown -R status-page:status-page /opt/status-page
 
 USER status-page
