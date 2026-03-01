@@ -74,6 +74,11 @@ resource "aws_security_group_rule" "eks_allow_alb" {
   security_group_id        = aws_security_group.eks_nodes.id
 }
 
+  
+  # This dynamically finds the cluster's default security group and attaches the rule to it
+  security_group_id = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
+}
+
 # --- RDS PostgreSQL Security Group ---
 resource "aws_security_group" "rds" {
   name        = "${var.project_name}-sg-rds"
@@ -86,6 +91,7 @@ resource "aws_security_group" "rds" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
+
     security_groups = [aws_security_group.eks_nodes.id]
   }
 
@@ -114,6 +120,7 @@ resource "aws_security_group" "redis" {
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"
+
     security_groups = [aws_security_group.eks_nodes.id]
   }
 
