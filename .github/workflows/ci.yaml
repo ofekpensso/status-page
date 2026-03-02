@@ -1,0 +1,63 @@
+# .github/workflows/ci.yaml
+name: CI status-page 
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: ofek-status-page-repo
+  IMAGE_TAG: ${{ github.sha }}
+
+permissions:
+  id-token: write # Required for OIDC
+  contents: write # Required for updating values.yaml
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Replace this with the ARN of the role you created in Step 1
+          role-to-assume: arn:aws:iam::992382545251:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # This step runs for BOTH Pull Requests and Pushes to main
+      - name: Build Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+      # This step runs ONLY on Push to main (after Merge)
+      - name: Push image to Amazon ECR
+        if: github.event_name == 'push'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # This step runs ONLY on Push to main (GitOps update)
+      - name: Update Helm values.yaml
+        if: github.event_name == 'push'
+        run: |
+          cd K8s/status-page
+          sed -i "s/tag: .*/tag: \"$IMAGE_TAG\"/" values.yaml
+          
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add values.yaml
+          git commit -m "ci: update image tag to $IMAGE_TAG [skip ci]"
+          git push
