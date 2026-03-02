@@ -74,14 +74,6 @@ resource "aws_security_group_rule" "eks_allow_alb" {
   security_group_id        = aws_security_group.eks_nodes.id
 }
 
-# Rule to allow the Bastion host (and any resource in VPC) to talk to the EKS Cluster API
-resource "aws_security_group_rule" "eks_cluster_allow_vpc" {
-  type              = "ingress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/16"] # Your VPC CIDR
-  description       = "Allow VPC to communicate with EKS API"
   
   # This dynamically finds the cluster's default security group and attaches the rule to it
   security_group_id = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
@@ -99,7 +91,8 @@ resource "aws_security_group" "rds" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+
+    security_groups = [aws_security_group.eks_nodes.id]
   }
 
   # Allow all outbound traffic (default behavior)
@@ -127,7 +120,8 @@ resource "aws_security_group" "redis" {
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+
+    security_groups = [aws_security_group.eks_nodes.id]
   }
 
   # Allow all outbound traffic (default behavior)

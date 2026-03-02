@@ -88,6 +88,7 @@ resource "aws_eks_node_group" "main" {
 
   capacity_type  = "ON_DEMAND"
   instance_types = ["t3.medium"]
+
   # Use the Launch Template to enforce the Name tag on the underlying EC2 instances
   launch_template {
     name    = aws_launch_template.eks_nodes.name
