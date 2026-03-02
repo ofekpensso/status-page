@@ -1,0 +1,22 @@
+# This ConfigMap stores non-confidential configuration data.
+# The application pods will read these values as environment variables.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # Helm will dynamically inject the release name here
+  name: {{ .Release.Name }}-configmap
+  labels:
+    app: status-page
+data:
+  # Database Environment Variables
+  DB_HOST: {{ .Values.database.host | quote }}
+  DB_PORT: {{ .Values.database.port | quote }}
+  DB_NAME: {{ .Values.database.name | quote }}
+  
+  # Redis Environment Variables
+  REDIS_HOST: {{ .Values.redis.host | quote }}
+  REDIS_PORT: {{ .Values.redis.port | quote }}
+  
+  # AWS S3 Environment Variables
+  S3_BUCKET_NAME: {{ .Values.s3.bucketName | quote }}
+  AWS_REGION: {{ .Values.s3.region | quote }}
