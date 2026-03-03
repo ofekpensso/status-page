@@ -14,3 +14,9 @@ timeout = 120
 # The maximum number of requests a worker can handle before being respawned
 max_requests = 5000
 max_requests_jitter = 500
+
+# Logging — stream everything to stdout (12-factor style, no local files)
+accesslog = '-'
+errorlog = '-'
+loglevel = 'info'
+access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
