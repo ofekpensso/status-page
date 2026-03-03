@@ -88,7 +88,7 @@ resource "aws_security_group" "rds" {
     to_port         = 5432
     protocol        = "tcp"
 
-    security_groups = [aws_security_group.eks_nodes.id]
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   # Allow all outbound traffic (default behavior)
@@ -117,7 +117,7 @@ resource "aws_security_group" "redis" {
     to_port         = 6379
     protocol        = "tcp"
 
-    security_groups = [aws_security_group.eks_nodes.id]
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   # Allow all outbound traffic (default behavior)
@@ -131,4 +131,14 @@ resource "aws_security_group" "redis" {
   tags = {
     Name = "${var.project_name}-sg-redis"
   }
+}
+
+# Allow the EKS Control Plane to communicate with the worker nodes
+resource "aws_security_group_rule" "eks_control_plane_to_nodes" {
+  type                     = "ingress"
+  from_port                = 0
+  to_port                  = 65535
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.eks_nodes.id
+  source_security_group_id = aws_eks_cluster.main.vpc_config[0].cluster_security_group_id
 }
