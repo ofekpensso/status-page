@@ -60,4 +60,4 @@ jobs:
           git config user.email "actions@github.com"
           git add values.yaml
           git commit -m "ci: update image tag to $IMAGE_TAG [skip ci]"
-          git push
+

@@ -29,6 +29,7 @@ app/statuspage/static/*
 # State files - contains SENSITIVE database passwords and secrets in plain text
 *.tfstate
 *.tfstate.backup
+tfplan
 # Variables files (where you might put secrets locally)
 *.tfvars
 *.tfvars.json
