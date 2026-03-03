@@ -49,12 +49,20 @@ autoscaling:
 
 probes:
   liveness:
+    httpGet:
+      path: /
+      port: 8001
     initialDelaySeconds: 30
-    periodSeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 5
     failureThreshold: 3
   readiness:
+    httpGet:
+      path: /
+      port: 8001
     initialDelaySeconds: 10
-    periodSeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
     failureThreshold: 3
 ingress:
   annotations:
