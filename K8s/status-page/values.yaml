@@ -2,7 +2,7 @@
 # These values will be injected into our Kubernetes templates.
 
 # Number of pod replicas we want running for high availability
-replicaCount: 3
+replicaCount: 4
 
 # Docker image details from Amazon ECR
 image:
