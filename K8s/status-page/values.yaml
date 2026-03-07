@@ -2,13 +2,13 @@
 # These values will be injected into our Kubernetes templates.
 
 # Number of pod replicas we want running for high availability
-replicaCount: 3
+replicaCount: 2
 
 # Docker image details from Amazon ECR
 image:
   repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
   pullPolicy: Always
-  tag: "4bafb98a91657ba370b4539289952bc3a87ef0f1"
+  tag: "6e469f160aca712d591ea5210953b63f14934b57"
 
 
 # PostgreSQL Database (RDS) configuration
@@ -16,6 +16,7 @@ database:
   host: "ofek-status-page-rds.cx248m4we6k7.us-east-1.rds.amazonaws.com"
   port: "5432"
   name: "statuspagedb"
+  user: "statuspage"
 
 # Redis Cache (ElastiCache) configuration
 redis:
@@ -49,12 +50,20 @@ autoscaling:
 
 probes:
   liveness:
+    httpGet:
+      path: /
+      port: 8001
     initialDelaySeconds: 30
-    periodSeconds: 10
+    periodSeconds: 15
+    timeoutSeconds: 5
     failureThreshold: 3
   readiness:
+    httpGet:
+      path: /
+      port: 8001
     initialDelaySeconds: 10
-    periodSeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
     failureThreshold: 3
 ingress:
   annotations:
