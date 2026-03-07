@@ -61,3 +61,90 @@ data "aws_iam_policy_document" "status_page_app_trust" {
     }
   }
 }
+
+# Grant the EKS worker nodes permission to scale up and down via Auto Scaling Groups
+resource "aws_iam_role_policy" "eks_autoscaler_policy" {
+  name = "eks-cluster-autoscaler-policy"
+  
+  # Note: Ensure "aws_iam_role.nodes.name" matches the exact name of your node role resource in Terraform.
+  role = aws_iam_role.eks_nodes.name 
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeLaunchConfigurations",
+          "autoscaling:DescribeTags",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions",
+          "ec2:DescribeInstanceTypes"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# 1. Fetch the existing OIDC provider details from your EKS cluster
+data "aws_iam_openid_connect_provider" "eks" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+# 2. Create a dedicated IAM role for the Cluster Autoscaler pod
+resource "aws_iam_role" "cluster_autoscaler_irsa_role" {
+  name = "cluster-autoscaler-irsa-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = data.aws_iam_openid_connect_provider.eks.arn
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          "StringEquals" = {
+            "${replace(data.aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" = "system:serviceaccount:kube-system:cluster-autoscaler"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# 3. Attach the required Auto Scaling permissions to this new role
+resource "aws_iam_role_policy" "cluster_autoscaler_irsa_policy" {
+  name = "cluster-autoscaler-irsa-policy"
+  role = aws_iam_role.cluster_autoscaler_irsa_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "autoscaling:DescribeAutoScalingGroups",
+          "autoscaling:DescribeAutoScalingInstances",
+          "autoscaling:DescribeLaunchConfigurations",
+          "autoscaling:DescribeTags",
+          "autoscaling:SetDesiredCapacity",
+          "autoscaling:TerminateInstanceInAutoScalingGroup",
+          "ec2:DescribeLaunchTemplateVersions",
+          "ec2:DescribeInstanceTypes"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# 4. Output the exact Role ARN so we can paste it into our Kubernetes YAML
+output "cluster_autoscaler_role_arn" {
+  value = aws_iam_role.cluster_autoscaler_irsa_role.arn
+}
