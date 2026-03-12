@@ -87,7 +87,7 @@ resource "aws_eks_node_group" "main" {
   ]
 
   capacity_type  = "ON_DEMAND"
-  instance_types = ["t3.medium"]
+  instance_types = ["t3.large"]
 
   # Use the Launch Template to enforce the Name tag on the underlying EC2 instances
   launch_template {
@@ -98,7 +98,7 @@ resource "aws_eks_node_group" "main" {
   scaling_config {
     desired_size = 2
     max_size     = 3
-    min_size     = 1
+    min_size     = 2
   }
 
   update_config {
