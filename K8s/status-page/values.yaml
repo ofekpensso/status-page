@@ -65,8 +65,16 @@ probes:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
+
 ingress:
+  # Define the domain name for the Ingress host rule
+  host: "oag-status-page-devops.site"
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: "ofek-status-page-alb"
     alb.ingress.kubernetes.io/scheme: "internet-facing"
     alb.ingress.kubernetes.io/target-type: "ip"
+    # Enable HTTPS and HTTP to HTTPS redirect
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # Attach the ACM certificate ARN we just generated
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:992382545251:certificate/19be50f7-f93f-46af-9ce1-31f68bbb4a1f"
