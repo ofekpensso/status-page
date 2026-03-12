@@ -1,60 +1,83 @@
-<div align="center">
-    <img alt="Status Page" src="https://cdn.herrtxbias.net/status-page/logo_gray/logo_small.png"></a>
-</div>
-<br />
-<p align="center">
-    <a href="https://github.com/Status-Page/Status-Page"><img alt="GitHub license" src="https://img.shields.io/github/license/Status-Page/Status-Page"></a>
-    <a href="https://github.com/Status-Page/Status-Page/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/Status-Page/Status-Page"></a>
-    <a href="https://github.com/Status-Page/Status-Page/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/Status-Page/Status-Page"></a>
-    <a href="https://github.com/Status-Page/Status-Page/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/Status-Page/Status-Page"></a>
-    <a href="https://github.com/Status-Page/Status-Page/releases"><img alt="GitHub latest releas" src="https://img.shields.io/github/release/Status-Page/Status-Page"></a>
-    <a href="https://www.codacy.com/gh/Status-Page/Status-Page/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Status-Page/Status-Page&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/250b53ad99ca432cbac8d761a975b34d"/></a>
-</p>
+# 🚀 Enterprise-Grade Status Page: Cloud Infrastructure & GitOps
 
-# Overview
-- Components
-- Report incidents
-- JSON API
-- Metrics
-- Two Factor Authentication
-- Markdown support in incident / maintenance messages
-- Subscriptions for Notifications
-- Custom Plugins
+Welcome to the infrastructure repository for the Status Page project. This repository contains the complete Infrastructure as Code (IaC) and GitOps deployment configurations for a highly available, scalable, and secure web application deployed on AWS.
 
-# Requirements
-| Dependency       | Minimum Version | Optional |
-|------------------|-----------------|----------|
-| Python           | 3.10            | no       |
-| PostgreSQL       | 10              | no       |
-| Redis            | 4.0             | no       |
-| SMTP Mail Server | ---             | yes      |
+> **Note on Application Code:** For instructions on how to run, test, and build the application code locally, please refer to the [Application README](./app/README.md).
 
-# Installation & Updates
-Please have a look at our [Documentation](https://docs.status-page.dev/).
+---
 
-## Versioning
-We use semantic versioning. A version number has the following structure:
-````
-v 1 . 0 . 0
-  ^   ^   ^
-  |   |   |
-  |   |   Patch (Bug fixes)
-  |   |
-  |   Minor (No breaking changes to the Software, e.g. adding new features)
-  |
-  Major (Breaking changes to the Software)
-````
+## 🏗️ Architecture Overview
 
-## Documentation
-You can find the Documentation [here](https://docs.status-page.dev/).
+The system is designed with a modern cloud-native architecture, utilizing AWS managed services and Kubernetes for resilient container orchestration.
 
-## Other Licenses and Acknowledgements
-### Tailwind UI
-We are using Tailwind UI Components in this App. You are **NOT** allowed to reuse these Components in your own App!
+### Core Technologies (Tech Stack)
 
-See their [License](https://www.notion.so/Tailwind-UI-License-644418bb34ad4fa29aac9b82e956a867) for more information.
+- **Cloud Provider:** AWS (EKS, EC2, Route 53, ACM, ALB, IAM, S3)  
+- **Infrastructure as Code (IaC):** Terraform  
+- **Container Orchestration:** Kubernetes (EKS - `t3.large` nodes for high availability)  
+- **Continuous Deployment (GitOps):** Argo CD  
+- **Continuous Integration:** GitHub Actions  
+- **Ingress & Routing:** AWS Load Balancer Controller  
+- **Secrets Management:** External Secrets Operator (fetching from AWS Secrets Manager)  
+- **Observability:** Kube-Prometheus-Stack (Prometheus, Grafana, Alertmanager) & Loki  
 
-### NetBox
-As you may have noticed, the base structure for many parts of the app is derived
-from [NetBox](https://github.com/netbox-community/netbox), this made development much easier.
+---
+
+## ✨ Key Infrastructure Highlights
+
+### 1. 🔄 GitOps with Argo CD
+
+The entire Kubernetes state is managed declaratively via Argo CD. Any changes pushed to the `main` branch of this repository are automatically synchronized and applied to the EKS cluster, ensuring a single source of truth and eliminating configuration drift.
+
+---
+
+### 2. 📈 Auto-Scaling (HPA & Cluster Autoscaler)
+
+The application handles traffic spikes automatically:
+
+- **Horizontal Pod Autoscaler (HPA):**  
+  Scales the application pods based on CPU and memory utilization metrics.
+
+- **Cluster Autoscaler (IRSA enabled):**  
+  Communicates directly with AWS Auto Scaling Groups to dynamically add or remove `t3.large` EC2 instances (`min_size: 2` for HA) when pods are pending or resources are underutilized.
+
+---
+
+### 3. 🔒 Secure Secrets Management
+
+Zero secrets are stored in plain text or Git. The **External Secrets Operator** securely fetches database credentials (RDS/Redis) from AWS Secrets Manager and injects them directly into the Kubernetes pods at runtime.
+
+---
+
+### 4. 🌐 Networking, DNS & SSL
+
+- **Route 53 & ACM:** Automated DNS delegation and free SSL certificate generation.  
+- **AWS ALB Controller:** Automatically provisions an Application Load Balancer, routing HTTPS traffic (port 443) from `oag-status-page-devops.site` directly to the cluster services, including automatic HTTP-to-HTTPS redirection.
+
+---
+
+### 5. 📊 Observability & Monitoring
+
+A robust monitoring stack is deployed alongside the application:
+
+- **Prometheus & Grafana:** Collecting and visualizing real-time cluster metrics and application health.  
+- **Loki & Promtail:** Centralized log aggregation.  
+- **Alertmanager:** Configured to notify the team on critical alerts (e.g., node resource exhaustion or pod crash loops).
+
+---
+
+## 📂 Repository Structure
+
+```
+├── terraform/                # Terraform modules (EKS, IAM, Route53, ACM)
+├── k8s/
+│   ├── status-page/          # Helm chart / Kubernetes manifests for the app
+│   │   ├── values.yaml       # Dynamic configurations (Ingress host, auto-scaling thresholds)
+│   │   ├── deployment.yaml   # App deployments
+│   │   ├── hpa.yaml          # Horizontal Pod Autoscaler config
+│   │   ├── ingress.yaml      # ALB Ingress configuration with SSL
+│   │   └── secret-store.yaml # External Secrets configuration
+│   └── argocd/               # Argo CD application definitions
+└── app/                      # Application source code and local README
+```
 
