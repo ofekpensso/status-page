@@ -3,11 +3,12 @@
 
 # Number of pod replicas we want running for high availability
 replicaCount: 3
+
 # Docker image details from Amazon ECR
 image:
   repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
   pullPolicy: Always
-  tag: "4bd74bdb41e3ffce7669b412db2b62ef88ea3a46"
+  tag: "f97c93797c6847f311507d28320e37fd14dcac05"
 # PostgreSQL Database (RDS) configuration
 database:
   host: "ofek-status-page-rds.cx248m4we6k7.us-east-1.rds.amazonaws.com"
