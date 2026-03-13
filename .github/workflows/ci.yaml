@@ -30,7 +30,7 @@ jobs:
       # Run a quick syntax check (Lint) on the Helm charts
       - name: Run Helm Lint
         run: |
-          helm lint k8s/status-page/  
+          helm lint K8s/status-page/  
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
