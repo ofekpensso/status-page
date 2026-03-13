@@ -20,6 +20,7 @@ A complete, production-ready DevOps pipeline and cloud infrastructure for a high
 
   <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" />
   <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" />
+  <img src="https://img.shields.io/badge/Loki-F46800?style=for-the-badge&logo=grafana&logoColor=white" />
 </p>
 
 ## 🏗️ Architecture Overview
