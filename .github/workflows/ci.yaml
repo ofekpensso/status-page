@@ -32,6 +32,22 @@ jobs:
         run: |
           helm lint K8s/status-page/  
 
+      # Set up the Python environment required to run the Django tests
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Install the application's dependencies from the requirements file
+      - name: Install dependencies
+        run: pip install -r app/requirements.txt
+
+      # Execute the built-in Django test suite to verify application logic
+      - name: Run Django Tests
+        run: |
+          cd app/statuspage
+          python manage.py test    
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
