@@ -3,7 +3,6 @@
 
 # Number of pod replicas we want running for high availability
 replicaCount: 3
- 24ebe8bbdfef136a7020833ae500298c491a1083
 # Docker image details from Amazon ECR
 image:
   repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
