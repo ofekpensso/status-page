@@ -6,10 +6,16 @@ A complete, production-ready DevOps pipeline and cloud infrastructure for a high
 
 ## 🏗️ Architecture Overview
 
-> **[PLACEHOLDER: Insert your Mermaid Architecture Flow Diagram image here]**
-> *(Image showing the traffic flow from Route53 -> ALB -> Ingress -> Pods -> Redis/RDS)*
+Our environment is built on AWS and Kubernetes, ensuring high availability, security, and scalability.
 
-This architecture is designed for High Availability (HA) and zero-downtime deployments, utilizing AWS managed services and a Kubernetes orchestrator.
+**AWS VPC Infrastructure:**
+![AWS VPC Infrastructure](./screenshot/vpc-project.jpg)
+
+**Kubernetes Application Architecture:**
+![Status Page Architecture](./screenshot/status-page-architecture.jpg)
+
+**User Traffic Flow (Cache Hit/Miss Logic):**
+![Traffic Flowchart](./screenshot/traffic-flowchart.png)
 
 ### 🛠️ Tech Stack & Tools
 
@@ -37,7 +43,8 @@ This architecture is designed for High Availability (HA) and zero-downtime deplo
 
 Our deployment pipeline is fully automated, enforcing code quality and security before any code reaches the production cluster.
 
-> **[PLACEHOLDER: Insert your CI/CD Pipeline Flow diagram or GitHub Actions successful run screenshot here]**
+**The Complete CI/CD Flow:**
+![CI/CD Pipeline](./screenshot/cicd-pipeline.png)
 
 ### 1. Continuous Integration (GitHub Actions)
 1. **Shift-Left Testing:** Runs `helm lint` to validate infrastructure YAML and executes Django unit tests within ephemeral PostgreSQL/Redis service containers.
@@ -51,7 +58,8 @@ Our deployment pipeline is fully automated, enforcing code quality and security 
 * **Automated Sync:** Pulls the new state and instructs the EKS cluster to pull the new image from ECR.
 * **Rolling Update:** Kubernetes performs a zero-downtime deployment, utilizing Readiness and Liveness probes to ensure application health before routing traffic.
 
-> **[PLACEHOLDER: Insert your Argo CD synced application screenshot here]**
+**Argo CD Live Sync Status:**
+![Argo CD Dashboard](./screenshot/argo-cd.jpg)
 
 ---
 
@@ -68,10 +76,11 @@ Our deployment pipeline is fully automated, enforcing code quality and security 
 
 To ensure infrastructure stability and optimize resource allocation, the cluster is monitored using the Prometheus stack.
 
-> **[PLACEHOLDER: Insert your Node Exporter and Compute Resources Grafana dashboard screenshots here]**
+**Infrastructure Health (Node Exporter):**
+![Node Exporter Dashboard](./screenshot/node-exporter.jpg)
 
-* **Node Exporter:** Tracks underlying EC2 health (CPU, Memory, Disk I/O, Network).
-* **Compute Resources:** Monitors actual pod consumption vs. defined Quotas/Limits to prevent OOMKilled events.
+**Application Pod Metrics (Compute Resources):**
+![Compute Resources Dashboard](./screenshot/compute-resources.jpg)
 
 ---
 *Developed as a comprehensive showcase of modern DevOps engineering practices.*
