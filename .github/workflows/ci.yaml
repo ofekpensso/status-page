@@ -41,6 +41,22 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
+      # Scan the newly built Docker image for vulnerabilities using Trivy
+      # This acts as a security gate before pushing to the remote ECR registry
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          # Point Trivy to the exact image we just built locally
+          image-ref: '${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}'
+          # Display the results in a readable table format in the GitHub Actions console
+          format: 'table'
+          # CRITICAL: Fail the pipeline (exit code 1) if vulnerabilities are found
+          exit-code: '1'
+          # Only report vulnerabilities that actually have a known fix/patch available
+          ignore-unfixed: true
+          # Only fail the build for HIGH and CRITICAL severity issues
+          severity: 'CRITICAL,HIGH'    
+
       # This step runs ONLY on Push to main (after Merge)
       - name: Push image to Amazon ECR
         if: github.event_name == 'push'
