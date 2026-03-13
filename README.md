@@ -1,83 +1,77 @@
-# 🚀 Enterprise-Grade Status Page: Cloud Infrastructure & GitOps
+# 🚀 Enterprise Cloud-Native Status Page
 
-Welcome to the infrastructure repository for the Status Page project. This repository contains the complete Infrastructure as Code (IaC) and GitOps deployment configurations for a highly available, scalable, and secure web application deployed on AWS.
-
-> **Note on Application Code:** For instructions on how to run, test, and build the application code locally, please refer to the [Application README](./app/README.md).
+A complete, production-ready DevOps pipeline and cloud infrastructure for a highly available Status Page application. This project demonstrates modern cloud-native practices, including Infrastructure as Code (IaC), GitOps, Shift-Left Security, and comprehensive CI/CD automation.
 
 ---
 
 ## 🏗️ Architecture Overview
 
-The system is designed with a modern cloud-native architecture, utilizing AWS managed services and Kubernetes for resilient container orchestration.
+> **[PLACEHOLDER: Insert your Mermaid Architecture Flow Diagram image here]**
+> *(Image showing the traffic flow from Route53 -> ALB -> Ingress -> Pods -> Redis/RDS)*
 
-### Core Technologies (Tech Stack)
+This architecture is designed for High Availability (HA) and zero-downtime deployments, utilizing AWS managed services and a Kubernetes orchestrator.
 
-- **Cloud Provider:** AWS (EKS, EC2, Route 53, ACM, ALB, IAM, S3)  
-- **Infrastructure as Code (IaC):** Terraform  
-- **Container Orchestration:** Kubernetes (EKS - `t3.large` nodes for high availability)  
-- **Continuous Deployment (GitOps):** Argo CD  
-- **Continuous Integration:** GitHub Actions  
-- **Ingress & Routing:** AWS Load Balancer Controller  
-- **Secrets Management:** External Secrets Operator (fetching from AWS Secrets Manager)  
-- **Observability:** Kube-Prometheus-Stack (Prometheus, Grafana, Alertmanager) & Loki  
+### 🛠️ Tech Stack & Tools
 
----
+**Cloud & Infrastructure:**
+* **AWS:** EKS (Kubernetes), ECR (Container Registry), RDS (PostgreSQL), ElastiCache (Redis), ALB, Route 53.
+* **IaC:** Terraform (Provisioning the entire AWS infrastructure).
 
-## ✨ Key Infrastructure Highlights
+**Containerization & Orchestration:**
+* **Docker & Buildx:** Multi-stage, cached container builds.
+* **Kubernetes (K8s):** Deployments, Services, Ingress, HPA (Horizontal Pod Autoscaler).
+* **Helm:** Package manager for K8s manifests and templating.
 
-### 1. 🔄 GitOps with Argo CD
+**CI/CD & GitOps:**
+* **GitHub Actions:** Continuous Integration, testing, and building.
+* **Argo CD:** Continuous Deployment actively syncing cluster state with Git.
 
-The entire Kubernetes state is managed declaratively via Argo CD. Any changes pushed to the `main` branch of this repository are automatically synchronized and applied to the EKS cluster, ensuring a single source of truth and eliminating configuration drift.
-
----
-
-### 2. 📈 Auto-Scaling (HPA & Cluster Autoscaler)
-
-The application handles traffic spikes automatically:
-
-- **Horizontal Pod Autoscaler (HPA):**  
-  Scales the application pods based on CPU and memory utilization metrics.
-
-- **Cluster Autoscaler (IRSA enabled):**  
-  Communicates directly with AWS Auto Scaling Groups to dynamically add or remove `t3.large` EC2 instances (`min_size: 2` for HA) when pods are pending or resources are underutilized.
+**Security & Observability:**
+* **Trivy:** Container vulnerability scanning.
+* **AWS OIDC:** Secretless authentication between GitHub and AWS.
+* **Prometheus & Grafana:** Cluster monitoring and resource metrics.
 
 ---
 
-### 3. 🔒 Secure Secrets Management
+## 🔄 CI/CD Pipeline (The GitOps Way)
 
-Zero secrets are stored in plain text or Git. The **External Secrets Operator** securely fetches database credentials (RDS/Redis) from AWS Secrets Manager and injects them directly into the Kubernetes pods at runtime.
+Our deployment pipeline is fully automated, enforcing code quality and security before any code reaches the production cluster.
+
+> **[PLACEHOLDER: Insert your CI/CD Pipeline Flow diagram or GitHub Actions successful run screenshot here]**
+
+### 1. Continuous Integration (GitHub Actions)
+1. **Shift-Left Testing:** Runs `helm lint` to validate infrastructure YAML and executes Django unit tests within ephemeral PostgreSQL/Redis service containers.
+2. **Secretless Auth:** Uses AWS OIDC to authenticate securely.
+3. **Optimized Build:** Utilizes Docker Buildx with GitHub caching to reduce build times by up to 80%.
+4. **DevSecOps:** Scans the built image with **Trivy** for Critical/High CVEs.
+5. **Publish & Update:** Pushes the secure image to Amazon ECR and uses `yq` to safely update the `image.tag` in the Helm `values.yaml` file, committing the new state back to Git.
+
+### 2. Continuous Deployment (Argo CD)
+* **Drift Detection:** Argo CD detects the new commit in the repository.
+* **Automated Sync:** Pulls the new state and instructs the EKS cluster to pull the new image from ECR.
+* **Rolling Update:** Kubernetes performs a zero-downtime deployment, utilizing Readiness and Liveness probes to ensure application health before routing traffic.
+
+> **[PLACEHOLDER: Insert your Argo CD synced application screenshot here]**
 
 ---
 
-### 4. 🌐 Networking, DNS & SSL
+## 🛡️ Security & Best Practices Implemented
 
-- **Route 53 & ACM:** Automated DNS delegation and free SSL certificate generation.  
-- **AWS ALB Controller:** Automatically provisions an Application Load Balancer, routing HTTPS traffic (port 443) from `oag-status-page-devops.site` directly to the cluster services, including automatic HTTP-to-HTTPS redirection.
-
----
-
-### 5. 📊 Observability & Monitoring
-
-A robust monitoring stack is deployed alongside the application:
-
-- **Prometheus & Grafana:** Collecting and visualizing real-time cluster metrics and application health.  
-- **Loki & Promtail:** Centralized log aggregation.  
-- **Alertmanager:** Configured to notify the team on critical alerts (e.g., node resource exhaustion or pod crash loops).
+* **Least Privilege:** Kubernetes pods are configured with a strict `securityContext` (`runAsNonRoot: true`, dropping all capabilities).
+* **High Availability:** Pod Anti-Affinity rules ensure application replicas are spread across different physical EC2 nodes.
+* **Resource Management:** Strict CPU and Memory `requests` and `limits` are defined to prevent node starvation and enable the HPA.
+* **State Isolation:** Application configuration is completely separated from the image.
 
 ---
 
-## 📂 Repository Structure
+## 📊 Monitoring & Observability
 
-```
-├── terraform/                # Terraform modules (EKS, IAM, Route53, ACM)
-├── k8s/
-│   ├── status-page/          # Helm chart / Kubernetes manifests for the app
-│   │   ├── values.yaml       # Dynamic configurations (Ingress host, auto-scaling thresholds)
-│   │   ├── deployment.yaml   # App deployments
-│   │   ├── hpa.yaml          # Horizontal Pod Autoscaler config
-│   │   ├── ingress.yaml      # ALB Ingress configuration with SSL
-│   │   └── secret-store.yaml # External Secrets configuration
-│   └── argocd/               # Argo CD application definitions
-└── app/                      # Application source code and local README
-```
+To ensure infrastructure stability and optimize resource allocation, the cluster is monitored using the Prometheus stack.
 
+> **[PLACEHOLDER: Insert your Node Exporter and Compute Resources Grafana dashboard screenshots here]**
+
+* **Node Exporter:** Tracks underlying EC2 health (CPU, Memory, Disk I/O, Network).
+* **Compute Resources:** Monitors actual pod consumption vs. defined Quotas/Limits to prevent OOMKilled events.
+
+---
+*Developed as a comprehensive showcase of modern DevOps engineering practices.*
