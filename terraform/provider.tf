@@ -14,3 +14,14 @@ terraform {
     }
   }
 }
+
+# Configure Terraform to store the state file remotely in S3 bucket
+
+terraform {
+  backend "s3" {
+    bucket  = "ofek-status-page-terraform-state"
+    key     = "status-page/terraform.tfstate"
+    region  = "us-east-1"
+    encrypt = true
+  }
+}
