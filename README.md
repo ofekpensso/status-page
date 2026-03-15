@@ -78,7 +78,7 @@ Our deployment pipeline is fully automated, enforcing code quality and security 
 * **Rolling Update:** Kubernetes performs a zero-downtime deployment, utilizing Readiness and Liveness probes to ensure application health before routing traffic.
 
 **Argo CD Live Sync Status:**
-![Argo CD Dashboard](./screenshot/argo-cd.jpg)
+
 
 ---
 
