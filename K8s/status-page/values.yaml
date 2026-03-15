@@ -7,7 +7,7 @@ replicaCount: 3
 image:
   repository: "992382545251.dkr.ecr.us-east-1.amazonaws.com/ofek-status-page-repo"
   pullPolicy: Always
-  tag: "c76d60503d1c1faeb2ae830edfe8fe9c3c5ae450"
+  tag: "896de529bbb7ad1ce7884379c12987e35cd997e0"
 # PostgreSQL Database (RDS) configuration
 database:
   host: "ofek-status-page-rds.cx248m4we6k7.us-east-1.rds.amazonaws.com"
