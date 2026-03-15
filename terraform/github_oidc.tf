@@ -1,10 +1,4 @@
 ## terraform/github_oidc.tf
-
-# 1. READ the existing OIDC Provider for GitHub in AWS (Changed from resource to data)
-data "aws_iam_openid_connect_provider" "github_actions" {
-  url = "https://token.actions.githubusercontent.com"
-}
-
 # 2. Define the Trust Policy (Who is allowed to assume this role)
 data "aws_iam_policy_document" "github_actions_assume_role" {
   statement {
@@ -13,7 +7,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     principals {
       type        = "Federated"
       # Notice we now use the 'data' source instead of 'resource'
-      identifiers = [data.aws_iam_openid_connect_provider.github_actions.arn]
+      identifiers = [aws_iam_openid_connect_provider.github_actions.arn]
     }
     
     condition {
