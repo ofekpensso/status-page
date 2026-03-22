@@ -83,15 +83,6 @@ Our deployment pipeline is fully automated, enforcing code quality and security 
 
 ---
 
-## 🛡️ Security & Best Practices Implemented
-
-* **Least Privilege:** Kubernetes pods are configured with a strict `securityContext` (`runAsNonRoot: true`, dropping all capabilities).
-* **High Availability:** Pod Anti-Affinity rules ensure application replicas are spread across different physical EC2 nodes.
-* **Resource Management:** Strict CPU and Memory `requests` and `limits` are defined to prevent node starvation and enable the HPA.
-* **State Isolation:** Application configuration is completely separated from the image.
-
----
-
 ## 📊 Monitoring & Observability
 
 To ensure infrastructure stability and optimize resource allocation, the cluster is monitored using the Prometheus stack.
